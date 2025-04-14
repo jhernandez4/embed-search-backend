@@ -10,7 +10,7 @@ load_dotenv()
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(index=True, unique=True)
-    bio: str = Field(default="This is my bio")
+    bio: str | None = Field(default="This is my bio")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
 
 PSQL_URI = os.getenv("PSQL_URI")
