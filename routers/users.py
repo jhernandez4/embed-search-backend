@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException, status
+from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlmodel import select
 from ..dependencies import SessionDep
@@ -40,3 +41,28 @@ def create_new_user(
 
     return new_user 
 
+@router.delete("/{user_id}")
+def delete_user_by_id(
+    user_id: int,
+    session: SessionDep
+):
+    user_to_delete = session.exec(
+        select(User)
+        .where(User.id == user_id)
+    ).first()
+
+    if not user_to_delete:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=f"Failed to delete user. User with id {user_id} does not exist"
+        )
+
+    session.delete(user_to_delete)
+    session.commit()
+
+    return JSONResponse(
+        status_code=status.HTTP_200_OK,
+        content={
+            "message": f"Successfully deleted user with id {user_id}"
+        }
+    )
