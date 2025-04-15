@@ -25,7 +25,7 @@ def insert_users_to_db(filename: str):
         users_list = session.exec(
             select(User)
         ).all()
-        if len(users_list) > 80:
+        if len(users_list) >= 80:
             print("Users database populated. Skipping user import.")
             return
 
