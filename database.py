@@ -1,5 +1,6 @@
 from fastapi import Depends
-from sqlmodel import Field, Session, SQLModel, create_engine
+from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlalchemy.exc import IntegrityError
 import os
 from dotenv import load_dotenv
 from pydantic import EmailStr
@@ -18,3 +19,28 @@ engine = create_engine(PSQL_URI)
 
 def create_db_and_tables():
     SQLModel.metadata.create_all(engine)
+
+def insert_users_to_db(filename: str):
+    with Session(engine) as session:
+        users_list = session.exec(
+            select(User)
+        ).all()
+        if len(users_list) > 80:
+            print("Users database populated. Skipping user import.")
+            return
+
+    print("Populating users from txt file")
+
+    with open(filename, newline="", encoding="utf-8") as file:
+        usernames_list = [line.strip() for line in file]
+        with Session(engine) as session:
+            for username in usernames_list:
+                new_user = User(username=username)
+                try:
+                    session.add(new_user)
+                    session.commit()
+                    session.refresh(new_user)
+                    print("User added: ", new_user)
+                except IntegrityError as e:
+                    session.rollback()  # Rollback the transaction if there's an error
+                    print(f"Error adding user '{username}': {e.orig}")  # Print the error
