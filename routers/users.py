@@ -1,7 +1,8 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
 from sqlmodel import select
+from typing import Annotated
 from ..dependencies import SessionDep
 from ..database import User
 
@@ -66,3 +67,18 @@ def delete_user_by_id(
             "message": f"Successfully deleted user with id {user_id}"
         }
     )
+
+@router.get("", response_model=list[User])
+def read_all_user(
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100,
+):
+    users_list = session.exec(
+        select(User)
+        .offset(offset)
+        .limit(limit)
+        .order_by(User.username.asc())
+    ).all()
+
+    return users_list
