@@ -82,3 +82,20 @@ def read_all_user(
     ).all()
 
     return users_list
+
+@router.get("/like-search", response_model=list[User])
+def query_users_by_like_search(
+    username: str, # Query parameter
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100
+):
+    users_list = session.exec(
+        select(User)
+        .where(User.username.ilike(f"%{username}%"))
+        .offset(offset)
+        .limit(limit)
+        .order_by(User.username.asc())
+    ).all()
+
+    return users_list
