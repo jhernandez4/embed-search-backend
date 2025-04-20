@@ -1,5 +1,6 @@
 from fastapi import Depends
 from sqlmodel import Field, Session, SQLModel, create_engine, select
+from sqlalchemy import text
 from sqlalchemy.exc import IntegrityError
 import os
 from dotenv import load_dotenv
@@ -44,3 +45,13 @@ def insert_users_to_db(filename: str):
                 except IntegrityError as e:
                     session.rollback()  # Rollback the transaction if there's an error
                     print(f"Error adding user '{username}': {e.orig}")  # Print the error
+
+def install_fuzzy_search_extension():
+    with Session(engine) as session:
+        print("Verifying installation for PSQL fuzzy search extension...")
+        try:
+            session.exec(text("CREATE EXTENSION IF NOT EXISTS pg_trgm"))
+            session.commit()  # Commit the transaction if needed
+            print("Extension pg_trgm installed successfully.")
+        except Exception as e:
+            print(f"Error installing extension: {e}")

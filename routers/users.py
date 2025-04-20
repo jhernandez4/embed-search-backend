@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, status, Query
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from sqlmodel import select
+from sqlmodel import select, func
 from typing import Annotated
 from ..dependencies import SessionDep
 from ..database import User
@@ -93,6 +93,25 @@ def query_users_by_like_search(
     users_list = session.exec(
         select(User)
         .where(User.username.ilike(f"%{username}%"))
+        .offset(offset)
+        .limit(limit)
+        .order_by(User.username.asc())
+    ).all()
+
+    return users_list
+
+@router.get("/psql-search", response_model=list[User])
+def query_users_by_psql_search(
+    username: str,
+    session: SessionDep,
+    offset: int = 0,
+    limit: Annotated[int, Query(le=100)] = 100
+):
+    users_list = session.exec(
+        select(User)
+        .where(
+            func.similarity(User.username, username) > 0.1, # Similarity threshold
+        )
         .offset(offset)
         .limit(limit)
         .order_by(User.username.asc())
