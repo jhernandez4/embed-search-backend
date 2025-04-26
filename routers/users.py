@@ -114,7 +114,7 @@ def query_users_by_psql_search(
         )
         .offset(offset)
         .limit(limit)
-        .order_by(User.username.asc())
+        .order_by(func.similarity(User.username, username).desc())  # Order by similarity
     ).all()
 
     return users_list
