@@ -10,7 +10,7 @@ app = FastAPI()
 # Origins allowed to call this backend API
 origins = [
     # Local frontend URL 
-    "http://localhost:5173/"
+    "http://localhost:5173"
 ]
 
 app.add_middleware(
