@@ -4,7 +4,8 @@ from pydantic import BaseModel
 from sqlmodel import select, func
 from typing import Annotated
 from ..dependencies import SessionDep
-from ..database import User, search_usernames
+from ..database import User
+from ..search_service import username_search_service
 
 router = APIRouter(
     prefix="/users",
@@ -39,6 +40,9 @@ def create_new_user(
     session.add(new_user)
     session.commit()
     session.refresh(new_user)
+
+    # Rebuild TF-IDF search index on new user
+    username_search_service.rebuild_index()
 
     return new_user 
 
@@ -119,8 +123,8 @@ def query_users_by_psql_search(
 
     return users_list
 
-@router.get("/tfidf-search")
+@router.get("/tfidf-search", response_model=list[User])
 def query_users_by_tfidf_search(username: str):
-    results = search_usernames(username)
+    results = username_search_service.search(username)
 
     return results

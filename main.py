@@ -4,7 +4,7 @@ from .database import (
     create_db_and_tables, insert_users_to_db, install_fuzzy_search_extension,
 )
 from .routers import users
-from sklearn.feature_extraction.text import TfidfVectorizer
+from .search_service import username_search_service
 
 app = FastAPI()
 
@@ -30,6 +30,9 @@ def on_startup():
     create_db_and_tables()
     insert_users_to_db(users_file_name)
     install_fuzzy_search_extension() 
+
+    # Build initial TF-IDF index
+    username_search_service.rebuild_index()
 
 @app.get("/")
 async def root():
