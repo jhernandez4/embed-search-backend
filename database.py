@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 
 load_dotenv()
 
+# Database table
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     username: str = Field(index=True, unique=True)
