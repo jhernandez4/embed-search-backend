@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from sqlmodel import select, func
 from typing import Annotated
 from ..dependencies import SessionDep
-from ..database import User
+from ..database import User, search_usernames
 
 router = APIRouter(
     prefix="/users",
@@ -118,3 +118,9 @@ def query_users_by_psql_search(
     ).all()
 
     return users_list
+
+@router.get("/tfidf-search")
+def query_users_by_tfidf_search(username: str):
+    results = search_usernames(username)
+
+    return results

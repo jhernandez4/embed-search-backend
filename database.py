@@ -6,6 +6,8 @@ import os
 from dotenv import load_dotenv
 from pydantic import EmailStr
 from datetime import datetime, timezone
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 
 load_dotenv()
 
@@ -56,3 +58,30 @@ def install_fuzzy_search_extension():
             print("Extension pg_trgm installed successfully.")
         except Exception as e:
             print(f"Error installing extension: {e}")
+
+# Load users and usernames together
+def get_all_users():
+    with Session(engine) as session:
+        return session.exec(select(User)).all()
+
+users_list = get_all_users()
+usernames = [user.username for user in users_list]
+
+# Vectorize usernames
+vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 3))
+username_vectors = vectorizer.fit_transform(usernames)
+
+# Function to query similar usernames
+def search_usernames(query, top_n=10):
+    query_vec = vectorizer.transform([query])
+    similarities = cosine_similarity(query_vec, username_vectors).flatten()
+    top_indices = similarities.argsort()[::-1][:top_n]
+
+    # Build result list of User objects, filtering by similarity threshold
+    results = [
+        users_list[i]
+        for i in top_indices
+        if similarities[i] > 0.1
+    ]
+    
+    return results
