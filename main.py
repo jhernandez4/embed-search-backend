@@ -1,9 +1,10 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .database import (
-    create_db_and_tables, insert_users_to_db, install_fuzzy_search_extension
+    create_db_and_tables, insert_users_to_db, install_fuzzy_search_extension,
 )
 from .routers import users
+from sklearn.feature_extraction.text import TfidfVectorizer
 
 app = FastAPI()
 

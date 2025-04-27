@@ -71,13 +71,11 @@ usernames = [user.username for user in users_list]
 vectorizer = TfidfVectorizer(analyzer='char_wb', ngram_range=(2, 3))
 username_vectors = vectorizer.fit_transform(usernames)
 
-# Function to query similar usernames
 def search_usernames(query, top_n=10):
     query_vec = vectorizer.transform([query])
     similarities = cosine_similarity(query_vec, username_vectors).flatten()
     top_indices = similarities.argsort()[::-1][:top_n]
 
-    # Build result list of User objects, filtering by similarity threshold
     results = [
         users_list[i]
         for i in top_indices
