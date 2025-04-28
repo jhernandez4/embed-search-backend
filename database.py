@@ -12,7 +12,7 @@ load_dotenv()
 # Database table
 class User(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
-    username: str = Field(index=True, unique=True)
+    username: str = Field(index=True, unique=True, max_length=30)
     bio: str | None = Field(default="This is my bio")
     profile_picture: str | None = Field(default="https://i.imgur.com/vIaC7Uq.png")
     created_at: datetime = Field(default_factory=lambda: datetime.now(timezone.utc))
