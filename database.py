@@ -46,14 +46,14 @@ def insert_users_to_db(filename: str):
                     print("User added: ", new_user)
                 except IntegrityError as e:
                     session.rollback()  # Rollback the transaction if there's an error
-                    print(f"Error adding user '{username}': {e.orig}")  # Print the error
+                    print(f"Error adding user '{username}': {e.orig}") 
 
 def install_fuzzy_search_extension():
     with Session(engine) as session:
         print("Verifying installation for PSQL fuzzy search extension...")
         try:
             session.exec(text("CREATE EXTENSION IF NOT EXISTS pg_trgm"))
-            session.commit()  # Commit the transaction if needed
+            session.commit()
             print("Extension pg_trgm installed successfully.")
         except Exception as e:
             print(f"Error installing extension: {e}")

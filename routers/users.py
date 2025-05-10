@@ -65,6 +65,9 @@ def delete_user_by_id(
     session.delete(user_to_delete)
     session.commit()
 
+    # Rebuild TF-IDF search index on user delete 
+    username_search_service.rebuild_index()
+
     return JSONResponse(
         status_code=status.HTTP_200_OK,
         content={
